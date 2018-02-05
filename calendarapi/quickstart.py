@@ -49,7 +49,7 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def main():
+def get_next_10_events():
     """Shows basic usage of the Google Calendar API.
 
     Creates a Google Calendar API service object and outputs a list of the next
@@ -72,6 +72,30 @@ def main():
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
 
+def create_event():
+    event = {
+        'summary': 'Rugged Island in-room booking',
+        'location': 'Rugged Island, Limerick',
+        'description': 'Rugged Island in-room booking',
+        'start': {
+            'dateTime': '2018-02-05T15:00:00-00:00',
+            'timeZone': 'Europe/Dublin',
+        },
+        'end': {
+            'dateTime': '2018-02-05T17:00:00-00:00',
+            'timeZone': 'Europe/Dublin',
+        },
+        'attendees': [
+            {'email': 'daragh.t.lowe@gmail.com'},
+        ],
+    }
+    event = service.events().insert(calendarId='primary', body=event).execute()
+    print
+    'Event created: %s' % (event.get('htmlLink'))
+
+def main():
+    get_next_10_events()
+    create_event()
 
 if __name__ == '__main__':
     main()
