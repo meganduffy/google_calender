@@ -50,6 +50,7 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+
 def main():
     """Shows basic usage of the Google Calendar API.
 
