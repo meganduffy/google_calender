@@ -89,6 +89,7 @@ def create_event():
             {'email': 'daragh.t.lowe@gmail.com'},
         ],
     }
+
     event = service.events().insert(calendarId='primary', body=event).execute()
     print
     'Event created: %s' % (event.get('htmlLink'))
