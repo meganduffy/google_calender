@@ -4,37 +4,28 @@
     <h1>Rugged Island</h1>
     <p>Our very simple calendar</p>
 
-    {% if info %}
-        {% for event in info %}
 
-            <p><strong>Status: </strong>{{ event.status}}</p>
-            <p><strong>Start: </strong>{{ event.start.dateTime|date:"g:i a" }}</p>
-            <p><strong>End: </strong>{{ event.end.dateTime|date:"g:i a"}}</p>
-            <p><strong>Duration: </strong>{{ event.end.dateTime|timeuntil:event.start.dateTime }}</p>
-            <p><strong>Organizer: {{ event.organizer.email }}</strong></p>
+    {% if schedule %}
+
+        {% for item in schedule %}
+
+            {% if item.event %}
+                <h3>{{ item.event.summary }}</h3>
+                <p><strong>Status: </strong>{{ item.event.status }}</p>
+                <p><strong>Start: </strong>{{ item.event.start.dateTime|date:"g:i a" }}</p>
+                <p><strong>End: </strong>{{ item.event.end.dateTime|date:"g:i a" }}</p>
+                <p><strong>Duration: </strong>{{ item.event.end.dateTime|timeuntil:item.event.start.dateTime }}</p>
+                <p><strong>Organizer: {{ item.event.organizer.email }}</strong></p>
+            {% else %}
+                <p>{{ item.minute }}</p>
+            {% endif %}
+
             <hr>
-
         {% endfor %}
+        <hr>
 
     {% else %}
-
-        <h2>There are no events scheduled</h2>
-
-    {% endif %}
-
-    {% if hours %}
-
-        {% for hour in hours %}
-
-            <p>{{ hour | date:"P D" }}</p>
-            <hr>
-
-        {% endfor %}
-
-    {% else %}
-
-        <h2>Time does not exist</h2>
-
+        <h1>There is no schedule</h1>
     {% endif %}
 
 {% endblock %}

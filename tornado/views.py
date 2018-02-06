@@ -5,7 +5,8 @@ from __future__ import print_function
 import httplib2
 import os
 import datetime
-from dateutil import rrule
+# from dateutil import rrule
+from dateutil.rrule import rrule, MINUTELY
 
 from django.shortcuts import render
 from apiclient import discovery
@@ -73,7 +74,6 @@ def get_calendar_information(request):
         http = credentials.authorize(httplib2.Http())
         service = discovery.build('calendar', 'v3', http=http)
         now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
-        print('Getting the upcoming 10 events')
         eventsResult = service.events().list(
             calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
             orderBy='startTime').execute()
@@ -90,22 +90,51 @@ def get_calendar_information(request):
                 i["end"]["dateTime"] = datetime.datetime.strptime(endtime, "%Y-%m-%dT%H:%M:%SZ")
             return events
 
-    def get_hours():
+    def get_schedule(events):
         """Shows the hours in the day so we can ascertain which rooms are actually free
         """
         midnight = datetime.time(0, 0, 0)
         now = datetime.datetime.now()
         midnight_now = datetime.datetime.combine(now, midnight)
         midnight_tomorrow = midnight_now + datetime.timedelta(hours=24)
-        hours = {}
+        minutes = rrule(freq=MINUTELY, interval=5, dtstart=midnight_now, until=midnight_tomorrow)
 
-        for hour in rrule.rrule(rrule.MINUTELY, byminute=(-30, 30), dtstart=midnight_now, until=midnight_tomorrow):
-            hours[hour] = hour
-        sorted_hours = sorted(hours.values())
-        return sorted_hours
+        schedule = []
 
-    hours = get_hours()
+        for minute in minutes:
+            for event in events:
+                if event["start"]["dateTime"] == minute and minute not in schedule:
+                    schedule.append(
+                        {
+                            'minute': minute,
+                            'event': event
+                        }
+                    )
+                else:
+                    schedule.append(
+                        {
+                            'minute': minute
+                        }
+                    )
 
-    args = {'hours': hours}
+        sorted_schedule = [i for n, i in enumerate(schedule) if i not in schedule[n + 1:]]
+
+        return sorted_schedule
+
+    def remove_unwanted_times(schedule):
+        for key in schedule:
+            if len(key) > 1:
+                end_time = key["event"]["end"]["dateTime"]
+                print("END: ", type(end_time))
+                start_time = key["event"]["start"]["dateTime"]
+                print("START: ", type(start_time))
+
+
+
+    events = get_events()
+    schedule = get_schedule(events)
+    remove_unwanted_times(schedule)
+
+    args = {"schedule": schedule}
 
     return render(request, 'index.html', args)
