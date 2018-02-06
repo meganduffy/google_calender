@@ -1,6 +1,7 @@
 from __future__ import print_function
 import httplib2
 import os
+from attendees import Attendees
 
 from apiclient import discovery
 from oauth2client import client
@@ -17,37 +18,55 @@ except ImportError:
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
-def get_credentials():
-    """Gets valid user credentials from storage.
 
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
+class CalendarDependencies:
+    credentials = None
+    http = None
+    service = None
+    now = None
+    now_plus_one_hour = None
+    eventsResult = None
+    events = None
 
-    Returns:
-        Credentials, the obtained credential.
-    """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'calendar-python-quickstart.json')
+    def __init__(self):
+        self.credentials = self.get_credentials()
+        self.http = self.credentials.authorize(httplib2.Http())
+        self.service = discovery.build('calendar', 'v3', http=self.http)
+        self.now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+        self.now_plus_one_hour = datetime.datetime.now() + datetime.timedelta(hours=1)
+        self.eventsResult = self.service.events().list(
+            calendarId='primary', timeMin=self.now, maxResults=10, singleEvents=True,
+            orderBy='startTime').execute()
+        self.events = self.eventsResult.get('items', [])
 
-    store = Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
+    def get_credentials(self):
+        """Gets valid user credentials from storage.
+
+        If nothing has been stored, or if the stored credentials are invalid,
+        the OAuth2 flow is completed to obtain the new credentials.
+
+        Returns:
+            Credentials, the obtained credential.
+        """
+        home_dir = os.path.expanduser('~')
+        credential_dir = os.path.join(home_dir, '.credentials')
+        if not os.path.exists(credential_dir):
+            os.makedirs(credential_dir)
+        credential_path = os.path.join(credential_dir,
+                                       'calendar-python-quickstart.json')
+
+        store = Storage(credential_path)
+        credentials = store.get()
+        if not credentials or credentials.invalid:
+            flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+            flow.user_agent = APPLICATION_NAME
             credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
-    return credentials
+            print('Storing credentials to ' + credential_path)
+        return credentials
 
 def get_next_10_events():
     """Shows basic usage of the Google Calendar API.
@@ -55,46 +74,57 @@ def get_next_10_events():
     Creates a Google Calendar API service object and outputs a list of the next
     10 events on the user's calendar.
     """
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
-    eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
-        orderBy='startTime').execute()
-    events = eventsResult.get('items', [])
+    # print('Heres the time one hour from now', now_plus_one_hour)
+    #print('Getting the upcoming 10 events')
+    calendar_obj = CalendarDependencies()
 
-    if not events:
+    if not calendar_obj.events:
         print('No upcoming events found.')
-    for event in events:
+    for event in calendar_obj.events:
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
 
-def create_event():
+# Function to create events on the calendar
+def create_event(summary, location, description, start_time, end_time, attendees):
+    time_zone = 'Europe/Dublin'
     event = {
-        'summary': 'Rugged Island in-room booking',
-        'location': 'Rugged Island, Limerick',
-        'description': 'Rugged Island in-room booking',
+        'summary': summary,
+        'location': location,
+        'description': description,
         'start': {
-            'dateTime': '2018-02-05T15:00:00-00:00',
-            'timeZone': 'Europe/Dublin',
+            'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S-00:00"),
+            'timeZone': time_zone,
         },
         'end': {
-            'dateTime': '2018-02-05T17:00:00-00:00',
-            'timeZone': 'Europe/Dublin',
+            'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S-00:00"),
+            'timeZone': time_zone,
         },
-        'attendees': [
-            {'email': 'daragh.t.lowe@gmail.com'},
-        ],
+        'attendees': attendees.email_list,
     }
-    event = service.events().insert(calendarId='primary', body=event).execute()
+
+    calendar_obj = CalendarDependencies()
+    event = calendar_obj.service.events().insert(calendarId='primary', body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
 
+
 def main():
+
     get_next_10_events()
-    create_event()
+
+    # Test variables
+    summary = 'Test event sum'
+    location = 'Test event location'
+    description = 'Test event desc'
+    start_time_value = '2018/02/05 21:00:00'
+    end_time_value = '2018/02/05 22:00:00'
+    start_time = datetime.datetime.strptime(start_time_value, "%Y/%m/%d %H:%M:%S")
+    end_time = datetime.datetime.strptime(end_time_value, "%Y/%m/%d %H:%M:%S")
+    attendees=Attendees()
+    attendees.add_attendee("daragh.t.lowe@gmail.com")
+
+    # Calls the create_event function and passes variables that will be passed into it from django
+    create_event(summary, location, description, start_time, end_time, attendees)
 
 if __name__ == '__main__':
     main()
