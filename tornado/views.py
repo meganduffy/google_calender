@@ -2,12 +2,10 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-
 import httplib2
 import os
 import datetime
 from dateutil import rrule
-
 
 from django.shortcuts import render
 from apiclient import discovery
@@ -17,6 +15,7 @@ from oauth2client.file import Storage
 
 try:
     import argparse
+
     # The default calling of argparse causes conflicts with Djangos manage.py.
     # Source: https://stackoverflow.com/questions/34758516/google-calendar-api-stops-django-from-starting
     # flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
@@ -30,7 +29,6 @@ def get_calendar(request):
 
 
 def get_calendar_information(request):
-
     # If modifying these scopes, delete your previously saved credentials
     # at ~/.credentials/calendar-python-quickstart.json
     SCOPES = 'https://www.googleapis.com/auth/calendar'
@@ -92,17 +90,24 @@ def get_calendar_information(request):
                 i["end"]["dateTime"] = datetime.datetime.strptime(endtime, "%Y-%m-%dT%H:%M:%SZ")
             return events
 
-    def get_days():
+    def get_hours():
         """Shows the hours in the day so we can ascertain which rooms are actually free
         """
+        midnight = datetime.time(0, 0, 0)
         now = datetime.datetime.now()
-        tomorrow = now + datetime.timedelta(hours=48)
-        days = {'now': now, 'tomorrow': tomorrow}
-        return days
+        midnight_now = datetime.datetime.combine(now, midnight)
+        midnight_tomorrow = midnight_now + datetime.timedelta(hours=24)
+        hours = {}
 
+        for hour in rrule.rrule(rrule.HOURLY, dtstart=midnight_now, until=midnight_tomorrow):
+            hours[hour] = hour
+        print(type(hours))
+        print(hours)
+        sorted_hours = sorted(hours.values())
+        return sorted_hours
 
-    times = get_days()
+    hours = get_hours()
 
-    args = {'times': times}
+    args = {'hours': hours}
 
     return render(request, 'index.html', args)

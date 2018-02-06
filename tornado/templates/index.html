@@ -22,7 +22,14 @@
 
     {% endif %}
 
-    {% if times %}
+    {% if hours %}
+
+        {% for hour in hours %}
+
+            <p>{{ hour | date:"P D" }}</p>
+            <hr>
+
+        {% endfor %}
 
     {% else %}
 
