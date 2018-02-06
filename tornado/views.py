@@ -99,10 +99,8 @@ def get_calendar_information(request):
         midnight_tomorrow = midnight_now + datetime.timedelta(hours=24)
         hours = {}
 
-        for hour in rrule.rrule(rrule.HOURLY, dtstart=midnight_now, until=midnight_tomorrow):
+        for hour in rrule.rrule(rrule.MINUTELY, byminute=(-30, 30), dtstart=midnight_now, until=midnight_tomorrow):
             hours[hour] = hour
-        print(type(hours))
-        print(hours)
         sorted_hours = sorted(hours.values())
         return sorted_hours
 
