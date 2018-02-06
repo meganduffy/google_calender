@@ -3,3 +3,4 @@ client_secret.json
 __pycache__/
 calendarapi/venv/
 venv/
+db.sqlite3
