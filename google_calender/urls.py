@@ -19,5 +19,5 @@ from tornado import views as tornado_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'', tornado_views.get_calendar, name="index")
+    url(r'', tornado_views.get_calendar_information, name="index")
 ]

@@ -1,6 +1,31 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h1>Hello, World!</h1>
-<p>Our very simple calendar</p>
-    <small>(yayyyy)</small>
+    <h1>Rugged Island</h1>
+    <p>Our very simple calendar</p>
+
+
+    {% if schedule %}
+
+        {% for item in schedule %}
+
+            {% if item.event %}
+                <h3>{{ item.event.summary }}</h3>
+                <p><strong>Status: </strong>{{ item.event.status }}</p>
+                <p><strong>Start: </strong>{{ item.event.start.dateTime|date:"g:i a" }}</p>
+                <p><strong>End: </strong>{{ item.event.end.dateTime|date:"g:i a" }}</p>
+                <p><strong>Duration: </strong>{{ item.event.end.dateTime|timeuntil:item.event.start.dateTime }}</p>
+                <p><strong>Organizer: {{ item.event.organizer.email }}</strong></p>
+            {% else %}
+                <p>{{ item.minute }}</p>
+            {% endif %}
+
+            <hr>
+        {% endfor %}
+        <hr>
+
+    {% else %}
+        <h1>There is no schedule</h1>
+    {% endif %}
+
 {% endblock %}
