@@ -90,8 +90,7 @@ def create_event():
         ],
     }
     event = service.events().insert(calendarId='primary', body=event).execute()
-    print
-    'Event created: %s' % (event.get('htmlLink'))
+    print('Event created: %s' % (event.get('htmlLink')))
 
 def main():
     get_next_10_events()
