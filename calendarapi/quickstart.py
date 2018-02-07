@@ -12,7 +12,11 @@ import datetime
 
 try:
     import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+
+    # The default calling of argparse causes conflicts with Djangos manage.py.
+    # Source: https://stackoverflow.com/questions/34758516/google-calendar-api-stops-django-from-starting
+    # flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+    flags = tools.argparser.parse_args([])
 except ImportError:
     flags = None
 

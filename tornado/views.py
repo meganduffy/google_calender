@@ -102,20 +102,30 @@ def get_calendar_information(request):
         schedule = []
 
         for minute in minutes:
-            for event in events:
-                if event["start"]["dateTime"] == minute and minute not in schedule:
-                    schedule.append(
-                        {
-                            'minute': minute,
-                            'event': event
-                        }
-                    )
-                else:
-                    schedule.append(
-                        {
-                            'minute': minute
-                        }
-                    )
+
+            if events:
+
+                for event in events:
+
+                    if event["start"]["dateTime"] == minute and minute not in schedule:
+                        schedule.append(
+                            {
+                                'minute': minute,
+                                'event': event
+                            }
+                        )
+                    else:
+                        schedule.append(
+                            {
+                                'minute': minute
+                            }
+                        )
+            else:
+                schedule.append(
+                    {
+                        'minute': minute
+                    }
+                )
 
         sorted_schedule = [i for n, i in enumerate(schedule) if i not in schedule[n + 1:]]
 
@@ -129,9 +139,8 @@ def get_calendar_information(request):
                 start_time = key["event"]["start"]["dateTime"]
                 print("START: ", type(start_time))
 
-
-
     events = get_events()
+    print("EVENTS: ", events)
     schedule = get_schedule(events)
     remove_unwanted_times(schedule)
 
