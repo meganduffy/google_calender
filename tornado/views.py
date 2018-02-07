@@ -9,10 +9,13 @@ import datetime
 from dateutil.rrule import rrule, MINUTELY
 
 from django.shortcuts import render
+from django.contrib import messages
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+
+from .forms import CreateEventForm
 
 try:
     import argparse
@@ -145,11 +148,28 @@ def get_calendar_information(request):
                 }
             )
 
-
-
     events = get_events()
     schedule = get_schedule(events)
 
     args = {"schedule": schedule}
 
     return render(request, 'index.html', args)
+
+
+def user_create_event(request):
+    """
+    Logic for the form that will create an event
+    """
+
+    if request.method == "POST":
+        form = CreateEventForm(request.POST)
+        if form.is_valid():
+            print(form)
+        else:
+            messages.error(request, "Unable to validate form")
+    else:
+        form = CreateEventForm()
+
+    args = {'form': form}
+
+    return render(request, 'add-event.html', args)

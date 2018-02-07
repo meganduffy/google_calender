@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Rugged Island</h1>
+    <p>Add Events Here</p>
+
+    <form role="form" method="post" action="{% url 'create-event' %}">
+        {% csrf_token %}
+        <h2>Create an Event</h2>
+        {{ form.as_p }}
+
+        <div class="form-group submit-btn">
+            <button type="submit" class="btn btn-primary">Create Event</button>
+        </div>
+    </form>
+
+{% endblock %}

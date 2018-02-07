@@ -16,10 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from tornado import views as tornado_views
-from calendarapi import views as calendar_views
+# from calendarapi import views as calendar_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', tornado_views.get_calendar_information, name="index"),
-    url(r'^add-event/$', calendar_views.customer_create_event, name="create-event")
+    url(r'^add-event/$', tornado_views.user_create_event, name="create-event")
 ]
