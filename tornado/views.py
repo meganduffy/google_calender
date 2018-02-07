@@ -8,7 +8,8 @@ import datetime
 # from dateutil import rrule
 from dateutil.rrule import rrule, MINUTELY
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
 from django.contrib import messages
 from apiclient import discovery
 from oauth2client import client
@@ -98,7 +99,7 @@ def get_calendar_information(request):
         """
         midnight = datetime.time(0, 0, 0)
         now = datetime.datetime.now()
-        earliest_possible_schedule_time = datetime.datetime.combine(now, midnight)   # 12:00 am
+        earliest_possible_schedule_time = datetime.datetime.combine(now, midnight)  # 12:00 am
         last_possible_schedule_time = earliest_possible_schedule_time + datetime.timedelta(hours=23.5)  # 11:30 pm
 
         schedule = []
@@ -164,7 +165,44 @@ def user_create_event(request):
     if request.method == "POST":
         form = CreateEventForm(request.POST)
         if form.is_valid():
-            print(form)
+            print("FORM: ", form)
+            summary = request.POST.get('summary')
+            start = request.POST.get('start')
+            end = request.POST.get('end')
+            organizer = request.POST.get('organizer')
+
+            print("ARGUMENTS: ", summary, start, end, organizer)
+            print("Date Types: ", type(start), "\n", type(end))
+
+            def create_event(summary, start, end, organizer):
+
+                event = {u'status': u'confirmed',
+                         u'kind': u'calendar#event',
+                         u'end': {u'dateTime': end},
+                         u'created': datetime.datetime.now(),
+                         u'iCalUID': u'45f7sdfqmg5q72rd2mrq04dv7i@google.com',
+                         u'reminders': {u'useDefault': True},
+                         u'htmlLink': u'https://www.google.com/calendar/',
+                         u'sequence': 0,
+                         u'updated': datetime.datetime.now(),
+                         u'summary': summary,
+                         u'start': {u'dateTime': start},
+                         u'etag': u'"3035662616606000"',
+                         u'organizer': {u'self': True, u'email': organizer},
+                         u'creator': {u'self': True, u'email': organizer},
+                         u'id': u'45f7sdfqmg5q72rd2mrq04dv7i'}
+                print(event)
+                return event
+
+            event = create_event(summary, start, end, organizer)
+
+            if event:
+                messages.success(request, "You have successfully created an event!")
+                return redirect(reverse('index'))
+            else:
+                messages.error(request, "Oops, something went wrong!")
+
+
         else:
             messages.error(request, "Unable to validate form")
     else:

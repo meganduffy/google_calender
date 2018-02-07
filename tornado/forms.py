@@ -1,3 +1,5 @@
+# from datetimepicker.widgets import DateTimePicker
+# from bootstrap_datepicker.widgets import DatePicker
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -8,24 +10,24 @@ class CreateEventForm(forms.Form):
         max_length=50
     )
 
-    # start = forms.DateTimeField(
-    #     widget=forms.DateTimeField(
-    #         format("%Y-%m-%d %H:%M:%S")
-    #     ),
-    #     required=True
-    # )
-    #
-    # end = forms.DateTimeField(
-    #     widget=forms.DateTimeField(
-    #         format("%Y-%m-%d %H:%M:%S")
-    #     ),
-    #     required=True
-    # )
+    start = forms.DateTimeField(
+        widget=forms.TextInput(),
+        label="Start Time"
+    )
 
-    guests = forms.Textarea()
+    end = forms.DateTimeField(
+        widget=forms.TextInput(),
+        label="End Time"
+    )
+
+    organizer = forms.EmailField(
+        label="Organizer Email"
+    )
 
     class Meta:
+        fields = ('start', 'end', 'guests', 'organizer')
         widgets = {
-            'start': forms.DateInput(format='%Y-%m-%d %H:%M:%S'),
-            'end': forms.DateInput(format='%Y-%m-%d %H:%M:%S')
+            'start': forms.DateTimeInput(format='%Y-%m-%d %H:%M:%S'),
+            'end': forms.DateTimeInput(format='%Y-%m-%d %H:%M:%S'),
+            'guests': forms.Textarea()
         }

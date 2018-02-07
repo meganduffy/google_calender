@@ -13,18 +13,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
 
+
+    <link rel="stylesheet"
+          href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.css">
+    <link rel="stylesheet"
+          href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js">
+    </script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
+    </script>
+    {{ form.media }}
     {% block head_js %}{% endblock head_js %}
 </head>
 <body>
 <div class="container">
-   <div class="masthead">
-       <ul class="nav nav-pills pull-right">
-           <li><a href="/">Home</a></li>
-       </ul>
-       <h1><span class="fui-settings-16 muted">Tornado Calendar</span></h1>
-   </div>
+    <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+            <li><a href="/">Home</a></li>
+            <li><a href="/add-event">Add Event</a></li>
+        </ul>
+        <h1><span class="fui-settings-16 muted">Tornado Calendar</span></h1>
+    </div>
 
-   <hr>
+    <hr>
 
     {% if messages %}
         <div class="alert alert-success">
@@ -36,16 +47,16 @@
         </div>
     {% endif %}
 
-   <div class="container">
-       {% block content %}
-       {% endblock %}
-   </div>
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
 
-   <hr>
+    <hr>
 
-   <div class="footer">
-       <p>Made By Team Tornado Tick Tock</p>
-   </div>
+    <div class="footer">
+        <p>Made By Team Tornado Tick Tock</p>
+    </div>
 </div>
 </body>
 
