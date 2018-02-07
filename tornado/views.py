@@ -95,54 +95,60 @@ def get_calendar_information(request):
         """
         midnight = datetime.time(0, 0, 0)
         now = datetime.datetime.now()
-        midnight_now = datetime.datetime.combine(now, midnight)
-        midnight_tomorrow = midnight_now + datetime.timedelta(hours=24)
-        minutes = rrule(freq=MINUTELY, interval=5, dtstart=midnight_now, until=midnight_tomorrow)
+        earliest_possible_schedule_time = datetime.datetime.combine(now, midnight)   # 12:00 am
+        last_possible_schedule_time = earliest_possible_schedule_time + datetime.timedelta(hours=23.5)  # 11:30 pm
 
         schedule = []
 
-        for minute in minutes:
+        if len(events) == 0:
+            # There are no events, add all 30 minute marks
+            add_bookable_times(schedule, earliest_possible_schedule_time, last_possible_schedule_time)
 
-            if events:
+        schedule_current_time = earliest_possible_schedule_time
+        for event in events:
+            event_start = event["start"]["dateTime"]
+            thirty_minutes_before_event = event_start + datetime.timedelta(minutes=-30)
 
-                for event in events:
+            # add thirty minute marks until the next event starts
+            add_bookable_times(schedule, schedule_current_time, thirty_minutes_before_event)
 
-                    if event["start"]["dateTime"] == minute and minute not in schedule:
-                        schedule.append(
-                            {
-                                'minute': minute,
-                                'event': event
-                            }
-                        )
-                    else:
-                        schedule.append(
-                            {
-                                'minute': minute
-                            }
-                        )
-            else:
-                schedule.append(
-                    {
-                        'minute': minute
-                    }
-                )
+            # add the event
+            schedule.append(
+                {
+                    'minute': event_start,
+                    'event': event
+                }
+            )
+            schedule_current_time = event["end"]["dateTime"]
+
+        # add the remaining minute marks until midnight
+        add_bookable_times(schedule, schedule_current_time, last_possible_schedule_time)
 
         sorted_schedule = [i for n, i in enumerate(schedule) if i not in schedule[n + 1:]]
 
         return sorted_schedule
 
-    def remove_unwanted_times(schedule):
-        for key in schedule:
-            if len(key) > 1:
-                end_time = key["event"]["end"]["dateTime"]
-                print("END: ", type(end_time))
-                start_time = key["event"]["start"]["dateTime"]
-                print("START: ", type(start_time))
+    def add_bookable_times(schedule_array, start_time, end_time):
+        """
+        Add thirty minute bookable times to our schedule
+
+        :param schedule_array: an array of bookable times and events
+        :param start_time: datetime
+        :param end_time: datetime
+        :return: no return, this function updates schedule_array in place (because pass-by-reference)
+        """
+        thirty_minute_marks = rrule(freq=MINUTELY, interval=30, dtstart=start_time, until=end_time)
+        for timestamp in thirty_minute_marks:
+            schedule_array.append(
+                {
+                    'minute': timestamp
+                }
+            )
+
+
 
     events = get_events()
-    print("EVENTS: ", events)
     schedule = get_schedule(events)
-    remove_unwanted_times(schedule)
 
     args = {"schedule": schedule}
 
