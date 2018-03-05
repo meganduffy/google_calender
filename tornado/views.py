@@ -17,6 +17,8 @@ from oauth2client import tools
 from oauth2client.file import Storage
 
 from .forms import CreateEventForm
+from quickstart import create_event as quickstart_create_event
+from attendees import Attendees
 
 try:
     import argparse
@@ -167,9 +169,13 @@ def user_create_event(request):
         if form.is_valid():
             print("FORM: ", form)
             summary = request.POST.get('summary')
-            start = request.POST.get('start')
-            end = request.POST.get('end')
+            start_string = request.POST.get('start')
+            end_string = request.POST.get('end')
             organizer = request.POST.get('organizer')
+
+            # format the start and end times
+            start = datetime.datetime.strptime(start_string, "%Y-%m-%d %H:%M:%S")
+            end = datetime.datetime.strptime(end_string, "%Y-%m-%d %H:%M:%S")
 
             print("ARGUMENTS: ", summary, start, end, organizer)
             print("Date Types: ", type(start), "\n", type(end))
@@ -195,14 +201,16 @@ def user_create_event(request):
                 return event
 
             event = create_event(summary, start, end, organizer)
+            # organizer = list(organizer)
+            attendees = Attendees()
+            attendees.add_attendee(organizer)
+
 
             if event:
                 messages.success(request, "You have successfully created an event!")
                 return redirect(reverse('index'))
             else:
                 messages.error(request, "Oops, something went wrong!")
-
-
         else:
             messages.error(request, "Unable to validate form")
     else:

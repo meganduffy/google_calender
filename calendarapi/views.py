@@ -2,9 +2,6 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from quickstart import create_event
-from attendees import Attendees
-import datetime
 
 
 # Create your views here.
