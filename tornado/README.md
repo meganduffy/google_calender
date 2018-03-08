@@ -64,6 +64,16 @@ Class for creating attendee lists.
 ---
 
 
+**calendar_cli.py**
+
+
+---
+
+Allows command line functionality by passing arguments at the command line.
+
+---
+
+
 **forms.py**
 
 
