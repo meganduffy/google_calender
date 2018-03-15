@@ -17,7 +17,7 @@ from oauth2client import tools
 from oauth2client.file import Storage
 
 from .forms import CreateEventForm
-from quickstart import create_event as quickstart_create_event
+from api_functions import create_event
 from attendees import Attendees
 
 try:
